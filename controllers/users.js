@@ -1,8 +1,22 @@
 import * as userService from '../services/users.js';
+import fs from 'fs'; 
 
-let bancoDeUsuarios = [
-  { id: 1, name: 'Diego', email: 'diego@email.com' }
-];
+const CAMINHO_ARQUIVO = './data/db.json';
+
+let bancoDeUsuarios = [];
+if (fs.existsSync(CAMINHO_ARQUIVO)) {
+    const dadosArquivo = fs.readFileSync(CAMINHO_ARQUIVO, 'utf-8');
+    bancoDeUsuarios = JSON.parse(dadosArquivo);
+} else {
+    fs.mkdirSync('./data', { recursive: true });
+    bancoDeUsuarios = [{ id: 1, name: 'Diego', email: 'diego@email.com' }];
+    fs.writeFileSync(CAMINHO_ARQUIVO, JSON.stringify(bancoDeUsuarios, null, 2));
+}
+
+const salvarNoArquivo = () => {
+    fs.writeFileSync(CAMINHO_ARQUIVO, JSON.stringify(bancoDeUsuarios, null, 2));
+};
+
 
 
 const validateUserPayload = (dadosCorpo) => {
@@ -36,7 +50,7 @@ export const createUser = (req, res) => {
 
   const { novoUsuario, listaAtualizada } = userService.create(bancoDeUsuarios, req.body);
   bancoDeUsuarios = listaAtualizada; 
-
+  salvarNoArquivo(); 
   return res.status(201).json(novoUsuario);
 };
 
@@ -54,6 +68,8 @@ export const updateUser = (req, res) => {
   }
 
   bancoDeUsuarios = resultado.listaAtualizada;
+  salvarNoArquivo(); 
+
   return res.json(resultado.usuarioAtualizado);
 };
 
@@ -66,5 +82,6 @@ export const deleteUser = (req, res) => {
   }
 
   bancoDeUsuarios = listaAtualizada;
+  salvarNoArquivo(); 
   return res.status(204).send();
 };
