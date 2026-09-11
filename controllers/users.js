@@ -55,7 +55,7 @@ export const createUser = (req, res) => {
 };
 
 export const updateUser = (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; 
   
   const validacao = validateUserPayload(req.body);
   if (!validacao.isValid) {
